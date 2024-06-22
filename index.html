@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        h1, h3 {
+            margin: 10px 0;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 24px;
+        }
+
+        .button {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-5px);
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .social-icons {
+            margin-top: 10px;
+        }
+
+        .social-icons a {
+            margin: 0 10px;
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+        .social-icons a:hover {
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .button {
+                width: 80%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h3>WELCOME TO THE PORTAL OF</h3>
+        <h1>MALHOTRA COOL CARE</h1>
+        <br>
+        <h3>What do you want to do?</h3>
+        <a class="button" href="challan.html">Make Challan</a>
+        <a class="button" href="purchase_order.html">Make Purchase Order</a>
+        <a class="button" href="slip.html">Make Slip</a>
+        <a class="button" href="list_of_purchasing.html">List of Purchasing</a>
+        <a class="button" href="Hisab.html">Make Hisab</a>
+        <br>
+        <br>
+        <div class="footer">
+            <p>Developed by Jai Prakesh Thakur, Computer Science Engineer</p>
+            <p>Email: <a href="mailto:jaiprakeshthakur442@gmail.com">jaiprakeshthakur442@gmail.com</a></p>
+            <div class="social-icons">
+                <a href="https://www.instagram.com/food_tales_with_jai" target="_blank" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/jai-prakesh-thakur-131676242" target="_blank" title="LinkedIn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="https://www.facebook.com" target="_blank" title="Facebook">
+                    <i class="fab fa-facebook"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

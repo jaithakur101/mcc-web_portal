@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slip Generation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+                }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="date"], input[type="number"] {
+            width: calc(100% - 16px);
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        td input[type="text"], td input[type="number"] {
+            width: calc(100% - 16px);
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .item-name {
+            font-size: 1.2em;
+            width: 100%;
+        }
+
+        .measurement {
+            font-size: 0.8em;
+            width: 50px;
+        }
+
+        .total-amount {
+            font-weight: bold;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            margin-top: 10px;
+            margin-right: 5px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+        }
+
+        @media print {
+            .form-group {
+                display: block;
+            }
+
+            .btn, th:last-child, td:last-child {
+                display: none;
+            }
+
+            input[type="text"], input[type="number"] {
+                border: none;
+                box-shadow: none;
+                background: none;
+                padding: 0;
+                margin: 0;
+                width: auto;
+            }
+
+            table, th, td {
+                border: 1px solid black;
+            }
+        }
+
+        @media (max-width: 600px) {
+            th, td {
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-group">
+            <label for="party-name">Party Name:</label>
+            <input type="text" id="party-name" name="party_name" required>
+        </div>
+        <div class="form-group">
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+        </div>
+
+        <table id="item-table">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">Sr. No.</th>
+                    <th style="width: 35%;">Item Name</th>
+                    <th style="width: 15%;">Quantity</th>
+                    <th style="width: 10%;">Unit</th>
+                    <th style="width: 15%;">Rate</th>
+                    <th style="width: 15%;">Total Item Price</th>
+                    <th style="width: 0%;" class="hide-print">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Auto-generated rows will be added here -->
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="5" class="total-amount">TOTAL AMOUNT:</td>
+                    <td id="total-amount" class="total-amount">0</td>
+                    <td class="hide-print"></td>
+                </tr>
+            </tfoot>
+        </table>
+        <button class="btn" onclick="addItem()">Add Item</button>
+        <button class="btn btn-danger" onclick="printSlip()">Print Slip</button>
+    </div>
+
+    <script>
+        let itemCount = 0;
+
+        function addItem() {
+            itemCount++;
+            const tableBody = document.querySelector('tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${itemCount}</td>
+                <td><input type="text" class="item-name" name="item_name_${itemCount}" required></td>
+                <td><input type="number" name="quantity_${itemCount}" required oninput="updateTotal(this)"></td>
+                <td><input type="text" name="unit_${itemCount}" value="pcs" class="measurement" required></td>
+                <td><input type="number" name="rate_${itemCount}" required oninput="updateTotal(this)"></td>
+                <td><input type="number" name="total_item_price_${itemCount}" readonly></td>
+                <td class="hide-print"><button class="btn btn-danger" onclick="deleteItem(this)">Delete</button></td>
+            `;
+            tableBody.appendChild(newRow);
+        }
+
+        function updateTotal(input) {
+            const row = input.parentElement.parentElement;
+            const quantity = row.querySelector('input[name^="quantity_"]').value;
+            const rate = row.querySelector('input[name^="rate_"]').value;
+            const totalItemPrice = row.querySelector('input[name^="total_item_price_"]');
+            totalItemPrice.value = (quantity * rate).toFixed(2);
+            updateTotalAmount();
+        }
+
+        function updateTotalAmount() {
+            const totalAmountCell = document.getElementById('total-amount');
+            let totalAmount = 0;
+            document.querySelectorAll('input[name^="total_item_price_"]').forEach(input => {
+                totalAmount += parseFloat(input.value) || 0;
+            });
+            totalAmountCell.textContent = totalAmount.toFixed(2);
+        }
+
+        function deleteItem(button) {
+            const row = button.parentElement.parentElement;
+            row.remove();
+            updateSerialNumbers();
+            updateTotalAmount();
+        }
+
+        function updateSerialNumbers() {
+            itemCount = 0;
+            document.querySelectorAll('tbody tr').forEach(row => {
+                itemCount++;
+                row.cells[0].textContent = itemCount;
+            });
+        }
+
+        function printSlip() {
+            window.print();
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                const focusedElement = document.activeElement;
+                if (focusedElement.tagName.toLowerCase() === 'input' && focusedElement.closest('tr')) {
+                    event.preventDefault();
+                    const inputs = Array.from(document.querySelectorAll('input'));
+                    const index = inputs.indexOf(focusedElement);
+                    inputs[index + 1]?.focus();
+                }
+            }
+        });
+
+        // Initialize by adding the first row
+        addItem();
+    </script>
+</body>
+</html>

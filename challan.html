@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Challan Entry</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-group textarea {
+            resize: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 2px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total-row td {
+            font-weight: bold;
+        }
+        .note textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: vertical;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .button-group {
+            margin-top: 20px;
+        }
+        .button-group button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .button-group button:hover {
+            background-color: #0056b3;
+        }
+        @media (max-width: 768px) {
+            .form-group input, .form-group textarea {
+                font-size: 16px;
+            }
+            .button-group button {
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Challan</h1>
+
+<div class="form-group">
+    <label for="ms">M/S</label>
+    <textarea id="ms" rows="1" placeholder="Name of Firm"></textarea>
+    <textarea id="place" rows="1" placeholder="Place"></textarea>
+    <textarea id="additional-info" rows="1" placeholder="Additional Info (if any)"></textarea>
+</div>
+<div class="form-group">
+    <label for="gst-no">GST No.</label>
+    <input type="text" id="gst-no" placeholder="GST No.">
+</div>
+<div class="form-group">
+    <label for="challan-no">Challan No.</label>
+    <input type="text" id="challan-no" placeholder="Challan No.">
+</div>
+<div class="form-group">
+    <label for="date">Date</label>
+    <input type="date" id="date">
+</div>
+
+<table id="challan-table">
+    <thead>
+        <tr>
+            <th>Sr. No</th>
+            <th>Particulars</th>
+            <th>Quantity</th>
+            <th>Remarks</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="challan-body">
+        <tr>
+            <td>1</td>
+            <td contenteditable="true"></td>
+            <td contenteditable="true" oninput="updateTotal()"></td>
+            <td contenteditable="true"><strong><i>Not for sale</i></strong></td>
+            <td>
+                <button onclick="deleteRow(this)">Delete</button>
+            </td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr class="total-row">
+            <td colspan="2">Total Quantity</td>
+            <td id="total-quantity">0</td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tfoot>
+</table>
+
+<div class="button-group">
+    <button onclick="addRow()">Add Row</button>
+</div>
+
+<div class="note">
+    <label for="note">Notes:</label>
+    <textarea id="note" placeholder="Add notes here..."></textarea>
+</div>
+
+<div class="button-group">
+    <button onclick="printChallan()">Print Challan</button>
+</div>
+
+<script>
+    function addRow() {
+        const table = document.getElementById('challan-body');
+        const rowCount = table.rows.length + 1;
+        const row = table.insertRow();
+
+        row.innerHTML = `
+            <td>${rowCount}</td>
+            <td contenteditable="true"></td>
+            <td contenteditable="true" oninput="updateTotal()"></td>
+            <td contenteditable="true"><strong><i>Not for sale</i></strong></td>
+            <td>
+                <button onclick="deleteRow(this)">Delete</button>
+            </td>
+        `;
+
+        updateTotal();
+    }
+
+    function deleteRow(button) {
+        const row = button.parentElement.parentElement;
+        row.parentElement.removeChild(row);
+        updateRowNumbers();
+        updateTotal();
+    }
+
+    function updateRowNumbers() {
+        const rows = document.querySelectorAll('#challan-body tr');
+        rows.forEach((row, index) => {
+            row.cells[0].textContent = index + 1;
+        });
+    }
+
+    function updateTotal() {
+        const quantities = document.querySelectorAll('#challan-body td:nth-child(3)');
+        let total = 0;
+        quantities.forEach(cell => {
+            total += parseInt(cell.textContent) || 0;
+        });
+        document.getElementById('total-quantity').textContent = total;
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            const activeElement = document.activeElement;
+            if (activeElement.tagName === 'TD' && activeElement.isContentEditable) {
+                event.preventDefault();
+                const nextCell = activeElement.nextElementSibling || activeElement.parentElement.nextElementSibling?.cells[1];
+                if (nextCell && nextCell.isContentEditable) {
+                    nextCell.focus();
+                }
+            }
+        }
+    });
+
+    document.querySelectorAll('#challan-body td[contenteditable]').forEach(cell => {
+        cell.addEventListener('input', updateTotal);
+    });
+
+    function printChallan() {
+        const data = {
+            ms: document.getElementById('ms').value,
+            place: document.getElementById('place').value,
+            additionalInfo: document.getElementById('additional-info').value,
+            gstNo: document.getElementById('gst-no').value,
+            challanNo: document.getElementById('challan-no').value,
+            date: document.getElementById('date').value,
+            note: document.getElementById('note').value,
+            table: Array.from(document.querySelectorAll('#challan-body tr')).map(row => {
+                return {
+                    srNo: row.cells[0].textContent,
+                    particulars: row.cells[1].textContent,
+                    quantity: row.cells[2].textContent,
+                    remarks: row.cells[3].textContent
+                };
+            })
+        };
+        localStorage.setItem('challanData', JSON.stringify(data));
+        window.open('print.html', '_blank');
+    }
+</script>
+
+</body>
+</html>

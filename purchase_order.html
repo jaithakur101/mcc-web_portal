@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purchase Order</title>
+<style>
+    @page {
+        size: A4;
+        margin: 0;
+    }
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 3px solid #000;
+        box-sizing: border-box;
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .header img {
+        width: 100%;
+        height: auto;
+    }
+    .header h1 {
+        margin: 20px 0;
+        font-size: 28px;
+        color: #333;
+    }
+    .date {
+        text-align: right;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .form-group textarea, .form-group input {
+        width: 100%;
+        padding: 5px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+    .form-group textarea {
+        height: 40px;
+        resize: none;
+    }
+    .bold-text {
+        font-weight: bold;
+        text-align: center;
+        margin-top: 20px;
+    }
+    .material-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    .material-table th, .material-table td {
+        border: 1px solid #000;
+        padding: 10px;
+        text-align: left;
+    }
+    .material-table th {
+        background-color: #f2f2f2;
+    }
+    .actions {
+        text-align: right;
+        margin-top: 10px;
+    }
+    .actions button {
+        padding: 10px 20px;
+        margin-left: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+    .actions button:hover {
+        background-color: #0056b3;
+    }
+    .note {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    .note textarea {
+        width: 100%;
+        height: 80px;
+        padding: 10px;
+        resize: vertical;
+        box-sizing: border-box;
+    }
+    .footer {
+        margin-top: 50px;
+        text-align: right;
+    }
+    .footer p {
+        margin: 0;
+    }
+    .footer-left {
+        text-align: left;
+    }
+    .footer-left input {
+        width: 60px;
+    }
+    .footer-right {
+        text-align: center;
+        font-weight: bold;
+    }
+    .print-button {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .print-button button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+    .print-button button:hover {
+        background-color: #0056b3;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img src="po.png" alt="Header Image">
+        <h1>PURCHASE ORDER</h1>
+    </div>
+    <div class="date">
+        <label for="date">Date: </label>
+        <input type="date" id="date">
+    </div>
+    <div class="form-group">
+        <label for="to">To:</label>
+        <textarea id="to" rows="2" placeholder="Recipient's address"></textarea>
+    </div>
+    <div class="bold-text">
+        <p>Please bill the below material</p>
+    </div>
+    <table class="material-table">
+        <thead>
+            <tr>
+                <th>Sr. No.</th>
+                <th>Material</th>
+                <th>Quantity</th>
+                <th>Rate</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <tr>
+                <td>1</td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="actions">
+        <button onclick="addRow()">Add</button>
+        <button onclick="deleteRow()">Delete</button>
+    </div>
+    <div class="note">
+        <textarea id="note" placeholder="Note"></textarea>
+    </div>
+    <div class="footer">
+        <div class="footer-left">
+            <label for="gst">GST %:</label>
+            <input type="number" id="gst" placeholder="GST">
+        </div>
+        <div class="footer-right">
+            <p>MALHOTRA COOL CARE</p>
+        </div>
+    </div>
+</div>
+<div class="print-button">
+    <button onclick="generatePrintPage()">Print</button>
+</div>
+<script>
+    function addRow() {
+        const tbody = document.getElementById('tbody');
+        const rowCount = tbody.rows.length;
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>${rowCount + 1}</td>
+            <td contenteditable="true"></td>
+            <td contenteditable="true"></td>
+            <td contenteditable="true"></td>
+        `;
+        tbody.appendChild(newRow);
+    }
+
+    function deleteRow() {
+        const tbody = document.getElementById('tbody');
+        if (tbody.rows.length > 1) {
+            tbody.deleteRow(-1);
+        }
+        updateRowNumbers();
+    }
+
+    function updateRowNumbers() {
+        const rows = document.querySelectorAll('#tbody tr');
+        rows.forEach((row, index) => {
+            row.firstElementChild.textContent = index + 1;
+        });
+    }
+
+    function generatePrintPage() {
+        const date = document.getElementById('date').value;
+        const to = document.getElementById('to').value;
+        const gst = document.getElementById('gst').value;
+        const note = document.getElementById('note').value;
+        const rows = document.querySelectorAll('#tbody tr');
+
+        let materialDetails = '';
+        rows.forEach((row, index) => {
+            const material = row.cells[1].textContent.trim();
+            const quantity = row.cells[2].textContent.trim();
+            const rate = row.cells[3].textContent.trim();
+            materialDetails += `${index + 1}. ${material} ${quantity} @ ${rate} /-<br>`;
+        });
+
+        const printWindow = window.open('', '', 'height=800,width=600');
+        printWindow.document.write('<html><head><title>Purchase Order</title>');
+        printWindow.document.write('<style>@page { size: A4; margin: 20px; } body { font-family: Arial, sans-serif; font-size: 20px; } .header { text-align: center; } .header img { width: 100%; height: auto; } .header h3 { margin: 20px 0; font-size: 24px; } .bold-text { font-weight: bold; margin-top: 20px; } .material-table { width: 100%; border-collapse: collapse; margin-top: 20px; } .material-table th, .material-table td { border: 1px solid #000; padding: 10px; text-align: left; line-height: 1; } .material-table th { background-color: #f2f2f2; } .note { margin-top: 20px; margin-bottom: 20px; } .note textarea { width: 100%; height: 80px; padding: 10px; resize: vertical; box-sizing: border-box; } .footer { margin-top: 50px; text-align: right; } .footer p { margin: 0; } .footer-left { text-align: left; } .footer-left input { width: 60px; } .footer-right { text-align: center; font-weight: bold; } .print-button { margin-top: 20px; text-align: center; } .print-button button { padding: 10px 20px; background-color: #007bff; color: #fff; border: none; cursor: pointer; } .print-button button:hover { background-color: #0056b3; }</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write('<div class="header">');
+        printWindow.document.write('<img src="po.png" alt="Header Image">');
+        printWindow.document.write('<h3>PURCHASE ORDER</h3>');
+        printWindow.document.write('</div>');
+        printWindow.document.write('<div style="text-align: right; font-weight: bold; margin-bottom: 1.5em;">Date: ' + date + '</div>');
+        printWindow.document.write('<div style="margin-bottom: 1.5em;">&nbsp;</div>');
+        printWindow.document.write('<div style="text-align: center;"><p>To:</p><p>' + to + '</p></div>');
+        printWindow.document.write('<div style="margin-bottom: 1.5em;">&nbsp;</div>');
+        printWindow.document.write('<div class="bold-text"><p>Please bill the below material</p></div>');
+        printWindow.document.write('<div style="margin-top: 1em;">' + materialDetails + '</div>');
+        printWindow.document.write('<div style="margin-top: 1.5em;">&nbsp;</div>');
+        printWindow.document.write('<div class="note"><p><strong>NOTE:</strong></p><p>GST (' + gst + '%) EXTRA</p></div>');
+        printWindow.document.write('<div style="margin-top: 8em;">&nbsp;</div>');
+        printWindow.document.write('<div class="footer"><p>MALHOTRA COOL CARE</p></div>');
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Hisab</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 2px solid #000; /* Thicker table borders */
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .buttons {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .buttons button.credit {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+        }
+
+        .buttons button.debit {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+        }
+
+        .buttons button.print {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+        }
+
+        .total-amount {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .footer {
+            text-align: right;
+            margin-top: 40px;
+            font-weight: bold;
+        }
+
+        @media print {
+            .buttons, .form-group, .no-print {
+                display: none;
+            }
+
+            th, td {
+                border: 2px solid #000;
+            }
+
+            .print-party-name {
+                display: block;
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-group">
+            <label for="partyName">Party Name:</label>
+            <input type="text" id="partyName" placeholder="Enter Party Name">
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr. No</th>
+                    <th>Date</th>
+                    <th>Transaction Type</th>
+                    <th>Amount</th>
+                    <th>Total Amount</th>
+                    <th class="no-print">Action</th>
+                </tr>
+            </thead>
+            <tbody id="transactionTable">
+                <tr>
+                    <td>1</td>
+                    <td contenteditable="true">01/01/2024</td>
+                    <td contenteditable="true">Previous Balance</td>
+                    <td contenteditable="true">0</td>
+                    <td>0</td>
+                    <td class="no-print"><button onclick="deleteRow(this)">Delete</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="buttons">
+            <button class="credit">Credit</button>
+            <button class="debit">Debit</button>
+            <button class="print" onclick="printPage()">Print</button>
+        </div>
+
+        <div class="total-amount" id="totalAmount">Total Payable Amount: 0</div>
+
+        <div class="footer">
+            MALHOTRA COOL CARE
+        </div>
+    </div>
+
+    <script>
+        let transactionCount = 1;
+
+        document.querySelector('.credit').addEventListener('click', function() {
+            addTransactionRow('credit');
+        });
+
+        document.querySelector('.debit').addEventListener('click', function() {
+            addTransactionRow('debit');
+        });
+
+        function addTransactionRow(type) {
+            transactionCount++;
+            const table = document.getElementById('transactionTable');
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td>${transactionCount}</td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true">${type.charAt(0).toUpperCase() + type.slice(1)}</td>
+                <td contenteditable="true">0</td>
+                <td>0</td>
+                <td class="no-print"><button onclick="deleteRow(this)">Delete</button></td>
+            `;
+            updateTotalAmount();
+        }
+
+        function deleteRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+            updateTotalAmount();
+        }
+
+        document.getElementById('transactionTable').addEventListener('input', function(e) {
+            if (e.target.tagName === 'TD') {
+                updateTotalAmount();
+            }
+        });
+
+        function updateTotalAmount() {
+            const rows = document.getElementById('transactionTable').rows;
+            let totalAmount = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const amountCell = row.cells[3];
+                const totalAmountCell = row.cells[4];
+                const amount = parseFloat(amountCell.textContent.replace(/,/g, '')) || 0;
+                const type = row.cells[2].textContent.toLowerCase();
+
+                if (type === 'credit') {
+                    totalAmount -= amount;
+                } else if (type === 'debit' || type === 'previous balance') {
+                    totalAmount += amount;
+                }
+
+                totalAmountCell.textContent = formatCurrency(totalAmount);
+            }
+
+            document.getElementById('totalAmount').textContent = `Total Payable Amount: ${formatCurrency(totalAmount)}`;
+        }
+
+        function formatCurrency(amount) {
+            return amount.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+        }
+
+        function printPage() {
+            const partyName = document.getElementById('partyName').value;
+            const printPartyNameElement = document.createElement('div');
+            printPartyNameElement.className = 'print-party-name';
+            printPartyNameElement.textContent = `Party Name: ${partyName}`;
+            document.body.insertBefore(printPartyNameElement, document.body.firstChild);
+
+            window.print();
+
+            printPartyNameElement.remove();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Challan</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 08mm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .content {
+            border: 3px solid #000; /* Bold outside border */
+            padding: 10px;
+            margin: 10px auto;
+            position: relative;
+            height: calc(100vh - 60px); /* Adjust height to fit the content within the border */
+            box-sizing: border-box;
+            max-width: 1000px; /* Center align the content */
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            display: none; /* Hide h1 on print */
+        }
+        .info {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .info p {
+            margin: 5px 0;
+        }
+        .left-info {
+            max-width: 60%;
+        }
+        .right-info {
+            text-align: right;
+            max-width: 40%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 2px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total-row td {
+            font-weight: bold;
+        }
+        .note, .terms {
+            margin-bottom: 40px;
+        }
+        .terms {
+            margin-bottom: 60px; /* Space for signature */
+        }
+        .footer {
+            text-align: right;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 20px;
+        }
+        @media (max-width: 768px) {
+            .content {
+                margin: 10px;
+                padding: 10px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            th, td {
+                font-size: 12px;
+                padding: 6px;
+            }
+        }
+        /* Underline user-inputted details */
+        .underline {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body onload="loadData()">
+
+<div class="content">
+    <h1>Challan</h1>
+
+    <img src="po.png" alt="Header Image" style="width: 100%; height: auto; margin-bottom: 20px;">
+
+    <div class="info">
+        <div class="left-info">
+            <p>M/S:<span id="ms" class="underline"></span></p>
+            <p><span id="place" class="underline"></span></p>
+            <p><span id="additional-info" class="underline"></span></p>
+            <BR>
+            <p>Party GST No.:<span id="gst-no" class="underline"></span></p>
+        </div>
+        <div class="right-info">
+            <p>Challan No.:<span id="challan-no" class="underline"></span></p>
+            <BR>
+                <BR>
+                    <BR>
+            <p>Date:<span id="date" class="underline"></span></p>
+        </div>
+    </div>
+
+    <table id="challan-table">
+        <thead>
+            <tr>
+                <th>Sr. No</th>
+                <th>Particulars</th>
+                <th>Quantity</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody id="challan-body"></tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="2">Total Quantity</td>
+                <td id="total-quantity">0</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="note">
+        <BR>
+        <p><strong>Note:</strong> <span id="note" class="underline"></span></p>
+    </div>
+
+    <div class="terms">
+        <BR>
+        <p><strong>Terms and Conditions:</strong></p>
+        <p>1. Received material in good quality and quantity.</p>
+        <p>2. 24% interest will be charged from the due date of payment.</p>
+        <p>3. All subject to Rewari jurisdiction.</p>
+        <p>4. Replacement as per the company law.</p>
+    </div>
+
+    <div class="footer">
+        <p>Malhotra Cool Care</p>
+    </div>
+</div>
+
+<script>
+    function loadData() {
+        const data = JSON.parse(localStorage.getItem('challanData'));
+        if (data) {
+            document.getElementById('ms').textContent = '\t\t' + data.ms;
+            document.getElementById('place').textContent = data.place;
+            document.getElementById('additional-info').textContent = data.additionalInfo;
+            document.getElementById('gst-no').textContent = '\t\t' + data.gstNo;
+            document.getElementById('challan-no').textContent = '\t\t' + data.challanNo;
+            document.getElementById('date').textContent = '\t\t' + data.date;
+            document.getElementById('note').textContent = data.note;
+
+            const tableBody = document.getElementById('challan-body');
+            let totalQuantity = 0;
+
+            data.table.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${row.particulars}</td>
+                    <td>${row.quantity}</td>
+                    <td>${row.remarks}</td>
+                `;
+                tableBody.appendChild(tr);
+                totalQuantity += parseInt(row.quantity) || 0;
+            });
+
+            document.getElementById('total-quantity').textContent = totalQuantity;
+        }
+    }
+</script>
+
+</body>
+</html>
