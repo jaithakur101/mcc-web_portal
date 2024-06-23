@@ -8,7 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
-                }
+        }
 
         .container {
             max-width: 800px;
@@ -54,8 +54,8 @@
         }
 
         .item-name {
-            font-size: 1.2em;
-            width: 100%;
+            font-size: 0.8em;
+            width: 50px;
         }
 
         .measurement {
@@ -202,7 +202,32 @@
         }
 
         function printSlip() {
+            replaceInputsWithText();
             window.print();
+            restoreInputs();
+        }
+
+        function replaceInputsWithText() {
+            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+                const span = document.createElement('span');
+                span.textContent = input.value;
+                span.setAttribute('data-input-name', input.name);
+                input.parentElement.replaceChild(span, input);
+            });
+        }
+
+        function restoreInputs() {
+            document.querySelectorAll('span[data-input-name]').forEach(span => {
+                const input = document.createElement('input');
+                input.type = span.parentElement.cellIndex === 1 ? 'text' : 'number';
+                input.name = span.getAttribute('data-input-name');
+                input.value = span.textContent;
+                input.setAttribute('required', 'required');
+                if (input.name.startsWith('quantity_') || input.name.startsWith('rate_')) {
+                    input.setAttribute('oninput', 'updateTotal(this)');
+                }
+                span.parentElement.replaceChild(input, span);
+            });
         }
 
         document.addEventListener('keydown', function(event) {
